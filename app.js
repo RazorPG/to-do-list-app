@@ -6,9 +6,10 @@ const titleError = document.querySelector("#title-error");
 const listsError = document.querySelector("#lists-error");
 const alert = document.querySelector(".card-alert");
 const closeAlert = document.querySelector(".close-alert");
-const btnOk = document.querySelector(".btn-ok");
-const confirmIcon = document.querySelector(".modal-title-confirm");
-const confirmMsg = document.querySelector(".modal-message-confirm");
+const modalConfirm = document.querySelector("#modalConfirm");
+const modalHeader = document.querySelector(".modal-header");
+const modalBody = document.querySelector(".modal-body");
+const modalFooter = document.querySelector(".modal-footer");
 
 let currentEditCard = null;
 let btnSave = null;
@@ -35,21 +36,72 @@ document.body.querySelector("form").addEventListener("submit", function (e) {
   sanitizedTitle = sanitizeInput(title.value);
 
   if (sanitizedLists.length != 0 && sanitizedTitle.length != 0) {
-    showConfirmModal(
-      ` <i class="fa-solid fa-square-check fs-3"></i> confirm`,
-      `Are you sure you want to submit?`,
-      () => {
-        // create card
-        const card = createCard(sanitizedTitle, sanitizedLists);
-        notes.innerHTML += card;
-
-        // clear form input
-        titleError.textContent = "";
-        listsError.textContent = "";
-        title.value = "";
-        lists.value = "";
-      }
+    createModal(
+      `<h1
+              class="modal-title modal-title-confirm fs-5"
+              id="staticBackdropLabel"
+            ></h1>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+              aria-label="Close"
+            ></button>`,
+      ` <form>
+              <div class="mb-3 row">
+                <label for="judul-to-do-edit" class="col-sm-2 col-form-label"
+                  >Title</label
+                >
+                <div class="col-sm-10">
+                  <input
+                    type="text"
+                    class="form-control"
+                    id="judul-to-do-edit"
+                    placeholder="Title..."
+                    required
+                  />
+                </div>
+              </div>
+              <div class="mb-3 row">
+                <label for="lists-edit" class="col-sm-2 form-label"
+                  >Contents</label
+                >
+                <div class="col-sm-10">
+                  <textarea
+                    class="form-control"
+                    id="lists-edit"
+                    rows="6"
+                    required
+                    placeholder="example:
+teh
+susu
+telur"
+                  ></textarea>
+                </div>
+              </div>
+            </form>`,
+      `<button
+              type="button"
+              class="btn btn-secondary"
+              data-bs-dismiss="modal"
+            >
+              Close
+            </button>
+            <button type="submit" class="btn btn-dark btn-save">
+              Save changes
+            </button>`
     );
+    showConfirmModal(() => {
+      // create card
+      const card = createCard(sanitizedTitle, sanitizedLists);
+      notes.innerHTML += card;
+
+      // clear form input
+      titleError.textContent = "";
+      listsError.textContent = "";
+      title.value = "";
+      lists.value = "";
+    });
   } else {
     btnForm.disabled = true;
 
@@ -147,16 +199,16 @@ document.addEventListener("click", (e) => {
   }
 });
 
-btnOk.addEventListener("click", function () {
-  const modal = bootstrap.Modal.getInstance(
-    document.querySelector("#staticBackdrop")
-  );
-  modal.hide();
+// btnOk.addEventListener("click", function () {
+//   const modal = bootstrap.Modal.getInstance(
+//     document.querySelector("#staticBackdrop")
+//   );
+//   modal.hide();
 
-  if (confirmCallback !== null) {
-    confirmCallback();
-  }
-});
+//   if (confirmCallback !== null) {
+//     confirmCallback();
+//   }
+// });
 
 closeAlert.addEventListener("click", function () {
   clearTimeout(buttonTimeOut);
@@ -190,6 +242,20 @@ lists.addEventListener("input", () => {
   );
 });
 
+const createModal = (header, body, footer, ...atributes) => {
+  modalHeader.innerHTML = header;
+  modalBody.innerHTML = body;
+  modalFooter.innerHTML = footer;
+
+  //process attributes
+  if (atributes.length > 0) {
+    atributes.forEach((attribute) => {
+      const { attName, attVal } = attribute.split("=");
+      modalConfirm.setAttribute(attName, attVal);
+    });
+  }
+};
+
 const createCard = (t, l) => {
   return `<div class="col mt-3 pb-3">
             <div class="card">
@@ -200,7 +266,7 @@ const createCard = (t, l) => {
                 ${l}
               </ol>
               </div>
-                <div class="d-flex flex-column justify-content-center gap-2">
+                <div class="d-flex flex-column justify-contents-center gap-3 px-5 ">
                 <button type="button" class="btn btn-dark btn-edit" data-bs-toggle="modal"
       data-bs-target="#editModal">edit</button>
                 <button type="button" class="btn btn-dark btn-delete">delete</button>
@@ -224,11 +290,9 @@ const alertModal = (msg) => {
   return;
 };
 
-const showConfirmModal = (icon, message, callback) => {
-  confirmIcon.innerHTML = icon;
-  confirmMsg.innerHTML = message;
+const showConfirmModal = (callback) => {
   confirmCallback = callback;
-  const modal = new bootstrap.Modal(document.querySelector("#staticBackdrop"));
+  const modal = new bootstrap.Modal(document.querySelector("#modalConfirm"));
   modal.show();
 };
 
