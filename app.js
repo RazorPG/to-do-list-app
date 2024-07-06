@@ -38,59 +38,30 @@ document.body.querySelector("form").addEventListener("submit", function (e) {
   if (sanitizedLists.length != 0 && sanitizedTitle.length != 0) {
     createModal(
       `<h1
-              class="modal-title modal-title-confirm fs-5"
-              id="staticBackdropLabel"
-            ></h1>
+              class="modal-title fs-5"
+              id="modalConfirm"
+            > <i class="fa-solid fa-square-check fs-3"></i> confirm</h1>
+            </h1>
             <button
               type="button"
               class="btn-close"
               data-bs-dismiss="modal"
               aria-label="Close"
             ></button>`,
-      ` <form>
-              <div class="mb-3 row">
-                <label for="judul-to-do-edit" class="col-sm-2 col-form-label"
-                  >Title</label
-                >
-                <div class="col-sm-10">
-                  <input
-                    type="text"
-                    class="form-control"
-                    id="judul-to-do-edit"
-                    placeholder="Title..."
-                    required
-                  />
-                </div>
-              </div>
-              <div class="mb-3 row">
-                <label for="lists-edit" class="col-sm-2 form-label"
-                  >Contents</label
-                >
-                <div class="col-sm-10">
-                  <textarea
-                    class="form-control"
-                    id="lists-edit"
-                    rows="6"
-                    required
-                    placeholder="example:
-teh
-susu
-telur"
-                  ></textarea>
-                </div>
-              </div>
-            </form>`,
+      `Are you sure you want to submit?`,
       `<button
               type="button"
-              class="btn btn-secondary"
+              class="btn btn-secondary btn-cancel"
               data-bs-dismiss="modal"
             >
-              Close
+              Cancel
             </button>
-            <button type="submit" class="btn btn-dark btn-save">
-              Save changes
-            </button>`
+            <button type="button" class="btn btn-dark btn-ok">Ok</button>`
     );
+
+    modalConfirm.dataset.bsBackdrop = "static";
+    modalConfirm.dataset.bsKeyboard = "false";
+
     showConfirmModal(() => {
       // create card
       const card = createCard(sanitizedTitle, sanitizedLists);
@@ -128,20 +99,93 @@ document.addEventListener("click", (e) => {
   else if (e.target.classList.contains("btn-delete")) {
     const cardToDoList =
       e.target.parentElement.parentElement.parentElement.parentElement;
-
-    showConfirmModal(
-      `<i class="fa-solid fa-trash fs-3"></i> confirm`,
-      ` Are you sure you want to delete?`,
-      () => {
-        cardToDoList.remove();
-      }
+    createModal(
+      `<h1
+      class="modal-title fs-5"
+      id="modalConfirm"
+    ><i class="fa-solid fa-trash fs-3"></i> confirm
+    </h1>
+    <button
+      type="button"
+      class="btn-close"
+      data-bs-dismiss="modal"
+      aria-label="Close"
+    ></button>`,
+      `Are you sure you want to delete?`,
+      `<button
+      type="button"
+      class="btn btn-secondary btn-cancel"
+      data-bs-dismiss="modal"
+    >
+      Cancel
+    </button>
+    <button type="button" class="btn btn-dark btn-ok">Ok</button>`
     );
+
+    modalConfirm.dataset.bsBackdrop = "static";
+    modalConfirm.dataset.bsKeyboard = "false";
+
+    showConfirmModal(() => {
+      cardToDoList.remove();
+    });
   }
   // show card to modal
   else if (
     e.target.classList.contains("btn-edit") ||
     e.target.classList.contains("btn-save")
   ) {
+    createModal(
+      `<h2 class="modal-title fs-5" id="editModalLabel">
+              <i class="fa-solid fa-pen-to-square"></i> Edit Item
+            </h2>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+              aria-label="Close"
+            ></button>`,
+      `<div class="mb-3 row">
+              <label for="judul-to-do-edit" class="col-sm-2 col-form-label"
+                >Title</label
+              >
+              <div class="col-sm-10">
+                <input
+                  type="text"
+                  class="form-control"
+                  id="judul-to-do-edit"
+                  placeholder="Title..."
+                  required
+                />
+              </div>
+            </div>
+            <div class="mb-3 row">
+              <label for="lists-edit" class="col-sm-2 form-label"
+                >Contents</label
+              >
+              <div class="col-sm-10">
+                <textarea
+                  class="form-control"
+                  id="lists-edit"
+                  rows="6"
+                  required
+                  placeholder="example:
+teh
+susu
+telur"
+                ></textarea>
+              </div>
+            </div>`,
+      `<button
+            type="button"
+            class="btn btn-secondary"
+            data-bs-dismiss="modal"
+          >
+            Close
+          </button>
+          <button type="button" class="btn btn-dark btn-save">
+            Save changes
+          </button>`
+    );
     const titleEdit = document.querySelector("#judul-to-do-edit");
     const contentEdit = document.querySelector("#lists-edit");
     if (e.target.classList.contains("btn-edit")) {
@@ -162,15 +206,16 @@ document.addEventListener("click", (e) => {
 
       // save referense to editing card
       currentEditCard = e.target.parentElement.parentElement.children[0];
+
+      showConfirmModal();
     } else if (e.target.classList.contains("btn-save")) {
+      console.log(e.target);
       btnSave = e.target;
       btnSave.disabled = true;
-
       // Delay 6 second for saving
       buttonTimeOut = setTimeout(() => {
         btnSave.disabled = false;
       }, 6000);
-
       if (titleEdit.value.trim() !== "" && contentEdit.value.trim() !== "") {
         currentEditCard.children[0].innerText = titleEdit.value;
         const sanitizedLists = sanitizeInput(contentEdit.value)
@@ -182,10 +227,9 @@ document.addEventListener("click", (e) => {
           })
           .join("");
         currentEditCard.children[1].innerHTML = sanitizedLists;
-
         // close modal
         const modal = bootstrap.Modal.getInstance(
-          document.querySelector("#editModal")
+          document.querySelector("#modalConfirm")
         );
         modal.hide();
       } else {
@@ -195,6 +239,15 @@ document.addEventListener("click", (e) => {
           alertModal(" contents cannot be empty!");
         }
       }
+    }
+  } else if (e.target.classList.contains("btn-ok")) {
+    const modal = bootstrap.Modal.getInstance(
+      document.querySelector("#modalConfirm")
+    );
+    modal.hide();
+
+    if (confirmCallback !== null) {
+      confirmCallback();
     }
   }
 });
@@ -242,18 +295,14 @@ lists.addEventListener("input", () => {
   );
 });
 
-const createModal = (header, body, footer, ...atributes) => {
+const createModal = (header, body, footer) => {
   modalHeader.innerHTML = header;
   modalBody.innerHTML = body;
   modalFooter.innerHTML = footer;
 
-  //process attributes
-  if (atributes.length > 0) {
-    atributes.forEach((attribute) => {
-      const { attName, attVal } = attribute.split("=");
-      modalConfirm.setAttribute(attName, attVal);
-    });
-  }
+  // Clear any previous attributes set
+  modalConfirm.removeAttribute("data-bs-backdrop");
+  modalConfirm.removeAttribute("data-bs-keyboard");
 };
 
 const createCard = (t, l) => {
@@ -293,6 +342,7 @@ const alertModal = (msg) => {
 const showConfirmModal = (callback) => {
   confirmCallback = callback;
   const modal = new bootstrap.Modal(document.querySelector("#modalConfirm"));
+
   modal.show();
 };
 
@@ -323,3 +373,10 @@ const maxlengthInput = (element, error, length, msg) => {
     error.textContent = "";
   }
 };
+
+// // modal confirm form
+// ` <i class="fa-solid fa-square-check fs-3"></i> confirm`
+//   `Are you sure you want to submit?`
+//   // modal confirm delete
+//   `<i class="fa-solid fa-trash fs-3"></i> confirm`
+//   ` Are you sure you want to delete?`
