@@ -18,6 +18,10 @@ let alertTimeOut = null;
 let sanitizedTitle = null;
 let sanitizedLists = null;
 let confirmCallback = null;
+let titleEdit = null;
+let contentEdit = null;
+
+const modal = new bootstrap.Modal(document.querySelector("#modalConfirm"));
 
 // form validate to do list
 document.body.querySelector("form").addEventListener("submit", function (e) {
@@ -39,7 +43,7 @@ document.body.querySelector("form").addEventListener("submit", function (e) {
     createModal(
       `<h1
               class="modal-title fs-5"
-              id="modalConfirm"
+              id="modalConfirmLabel"
             > <i class="fa-solid fa-square-check fs-3"></i> confirm</h1>
             </h1>
             <button
@@ -58,7 +62,6 @@ document.body.querySelector("form").addEventListener("submit", function (e) {
             </button>
             <button type="button" class="btn btn-dark btn-ok">Ok</button>`
     );
-
     modalConfirm.dataset.bsBackdrop = "static";
     modalConfirm.dataset.bsKeyboard = "false";
 
@@ -102,7 +105,7 @@ document.addEventListener("click", (e) => {
     createModal(
       `<h1
       class="modal-title fs-5"
-      id="modalConfirm"
+      id="modalConfirmLabel"
     ><i class="fa-solid fa-trash fs-3"></i> confirm
     </h1>
     <button
@@ -130,120 +133,110 @@ document.addEventListener("click", (e) => {
     });
   }
   // show card to modal
-  else if (
-    e.target.classList.contains("btn-edit") ||
-    e.target.classList.contains("btn-save")
-  ) {
+  else if (e.target.classList.contains("btn-edit")) {
     createModal(
-      `<h2 class="modal-title fs-5" id="editModalLabel">
-              <i class="fa-solid fa-pen-to-square"></i> Edit Item
-            </h2>
-            <button
-              type="button"
-              class="btn-close"
-              data-bs-dismiss="modal"
-              aria-label="Close"
-            ></button>`,
+      `<h2 class="modal-title fs-5" id="modalConfirmLabel">
+                <i class="fa-solid fa-pen-to-square"></i> Edit Item
+              </h2>
+              <button
+                type="button"
+                class="btn-close"
+                data-bs-dismiss="modal"
+                aria-label="Close"
+              ></button>`,
       `<div class="mb-3 row">
-              <label for="judul-to-do-edit" class="col-sm-2 col-form-label"
-                >Title</label
-              >
-              <div class="col-sm-10">
-                <input
-                  type="text"
-                  class="form-control"
-                  id="judul-to-do-edit"
-                  placeholder="Title..."
-                  required
-                />
+                <label for="judul-to-do-edit" class="col-sm-2 col-form-label"
+                  >Title</label
+                >
+                <div class="col-sm-10">
+                  <input
+                    type="text"
+                    class="form-control"
+                    id="judul-to-do-edit"
+                    placeholder="Title..."
+                    required
+                  />
+                </div>
               </div>
-            </div>
-            <div class="mb-3 row">
-              <label for="lists-edit" class="col-sm-2 form-label"
-                >Contents</label
-              >
-              <div class="col-sm-10">
-                <textarea
-                  class="form-control"
-                  id="lists-edit"
-                  rows="6"
-                  required
-                  placeholder="example:
-teh
-susu
-telur"
-                ></textarea>
-              </div>
-            </div>`,
+              <div class="mb-3 row">
+                <label for="lists-edit" class="col-sm-2 form-label"
+                  >Contents</label
+                >
+                <div class="col-sm-10">
+                  <textarea
+                    class="form-control"
+                    id="lists-edit"
+                    rows="6"
+                    required
+                    placeholder="example:
+  teh
+  susu
+  telur"
+                  ></textarea>
+                </div>
+              </div>`,
       `<button
-            type="button"
-            class="btn btn-secondary"
-            data-bs-dismiss="modal"
-          >
-            Close
-          </button>
-          <button type="button" class="btn btn-dark btn-save">
-            Save changes
-          </button>`
+              type="button"
+              class="btn btn-secondary"
+              data-bs-dismiss="modal"
+            >
+              Close
+            </button>
+            <button type="button" class="btn btn-dark btn-save">
+              Save changes
+            </button>`
     );
-    const titleEdit = document.querySelector("#judul-to-do-edit");
-    const contentEdit = document.querySelector("#lists-edit");
-    if (e.target.classList.contains("btn-edit")) {
-      const cardTitle =
-        e.target.parentElement.parentElement.children[0].children[0];
-      const cardText =
-        e.target.parentElement.parentElement.children[0].children[1];
 
-      // combine text to li
-      const liElements = cardText.querySelectorAll("li");
-      const contentText = Array.from(liElements)
-        .map((li) => `${li.innerText}`)
-        .join("\n");
+    titleEdit = document.querySelector("#judul-to-do-edit");
+    contentEdit = document.querySelector("#lists-edit");
 
-      // show value to modal
-      titleEdit.value = cardTitle.innerText;
-      contentEdit.value = contentText;
+    const cardTitle =
+      e.target.parentElement.parentElement.children[0].children[0];
+    const cardText =
+      e.target.parentElement.parentElement.children[0].children[1];
 
-      // save referense to editing card
-      currentEditCard = e.target.parentElement.parentElement.children[0];
+    // combine text to li
+    const liElements = cardText.querySelectorAll("li");
+    const contentText = Array.from(liElements)
+      .map((li) => `${li.innerText}`)
+      .join("\n");
 
-      showConfirmModal();
-    } else if (e.target.classList.contains("btn-save")) {
-      console.log(e.target);
-      btnSave = e.target;
-      btnSave.disabled = true;
-      // Delay 6 second for saving
-      buttonTimeOut = setTimeout(() => {
-        btnSave.disabled = false;
-      }, 6000);
-      if (titleEdit.value.trim() !== "" && contentEdit.value.trim() !== "") {
-        currentEditCard.children[0].innerText = titleEdit.value;
-        const sanitizedLists = sanitizeInput(contentEdit.value)
-          .split("\n")
-          .map((item) => {
-            if (item.length != 0) {
-              return `<li>${item}</li>`;
-            }
-          })
-          .join("");
-        currentEditCard.children[1].innerHTML = sanitizedLists;
-        // close modal
-        const modal = bootstrap.Modal.getInstance(
-          document.querySelector("#modalConfirm")
-        );
-        modal.hide();
-      } else {
-        if (titleEdit.value.trim() === "") {
-          alertModal(" title cannot be empty!");
-        } else if (contentEdit.value.trim() === "") {
-          alertModal(" contents cannot be empty!");
-        }
+    // show value to modal
+    titleEdit.value = cardTitle.innerText;
+    contentEdit.value = contentText;
+
+    // save referense to editing card
+    currentEditCard = e.target.parentElement.parentElement.children[0];
+
+    modal.show();
+  } else if (e.target.classList.contains("btn-save")) {
+    btnSave = e.target;
+    btnSave.disabled = true;
+    // Delay 6 second for saving
+    buttonTimeOut = setTimeout(() => {
+      btnSave.disabled = false;
+    }, 6000);
+    if (titleEdit.value.trim() !== "" && contentEdit.value.trim() !== "") {
+      currentEditCard.children[0].innerText = titleEdit.value;
+      const sanitizedLists = sanitizeInput(contentEdit.value)
+        .split("\n")
+        .map((item) => {
+          if (item.length != 0) {
+            return `<li>${item}</li>`;
+          }
+        })
+        .join("");
+      currentEditCard.children[1].innerHTML = sanitizedLists;
+      // close modal
+      modal.hide();
+    } else {
+      if (titleEdit.value.trim() === "") {
+        alertModal(" title cannot be empty!");
+      } else if (contentEdit.value.trim() === "") {
+        alertModal(" contents cannot be empty!");
       }
     }
   } else if (e.target.classList.contains("btn-ok")) {
-    const modal = bootstrap.Modal.getInstance(
-      document.querySelector("#modalConfirm")
-    );
     modal.hide();
 
     if (confirmCallback !== null) {
@@ -251,17 +244,6 @@ telur"
     }
   }
 });
-
-// btnOk.addEventListener("click", function () {
-//   const modal = bootstrap.Modal.getInstance(
-//     document.querySelector("#staticBackdrop")
-//   );
-//   modal.hide();
-
-//   if (confirmCallback !== null) {
-//     confirmCallback();
-//   }
-// });
 
 closeAlert.addEventListener("click", function () {
   clearTimeout(buttonTimeOut);
@@ -341,8 +323,6 @@ const alertModal = (msg) => {
 
 const showConfirmModal = (callback) => {
   confirmCallback = callback;
-  const modal = new bootstrap.Modal(document.querySelector("#modalConfirm"));
-
   modal.show();
 };
 
@@ -373,10 +353,3 @@ const maxlengthInput = (element, error, length, msg) => {
     error.textContent = "";
   }
 };
-
-// // modal confirm form
-// ` <i class="fa-solid fa-square-check fs-3"></i> confirm`
-//   `Are you sure you want to submit?`
-//   // modal confirm delete
-//   `<i class="fa-solid fa-trash fs-3"></i> confirm`
-//   ` Are you sure you want to delete?`
