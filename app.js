@@ -21,7 +21,7 @@ let confirmCallback = null;
 let titleEdit = null;
 let contentEdit = null;
 
-const modal = new bootstrap.Modal(document.querySelector("#modalConfirm"));
+const modal = new bootstrap.Modal(modalConfirm);
 
 // form validate to do list
 document.body.querySelector("form").addEventListener("submit", function (e) {
@@ -62,8 +62,6 @@ document.body.querySelector("form").addEventListener("submit", function (e) {
             </button>
             <button type="button" class="btn btn-dark btn-ok">Ok</button>`
     );
-    modalConfirm.setAttribute("bs-backdrop", "static");
-    modalConfirm.setAttribute("bs-Keyboard", "false");
 
     showConfirmModal(() => {
       // create card
@@ -125,15 +123,14 @@ document.addEventListener("click", (e) => {
     <button type="button" class="btn btn-dark btn-ok">Ok</button>`
     );
 
-    modalConfirm.dataset.bsBackdrop = "static";
-    modalConfirm.dataset.bsKeyboard = "false";
-
     showConfirmModal(() => {
       cardToDoList.remove();
     });
   }
   // show card to modal
   else if (e.target.classList.contains("btn-edit")) {
+    modal._config.keyboard = true;
+    modal._config.backdrop = true;
     createModal(
       `<h2 class="modal-title fs-5" id="modalConfirmLabel">
                 <i class="fa-solid fa-pen-to-square"></i> Edit Item
@@ -279,10 +276,6 @@ const createModal = (header, body, footer) => {
   modalHeader.innerHTML = header;
   modalBody.innerHTML = body;
   modalFooter.innerHTML = footer;
-
-  // Clear any previous attributes set
-  modalConfirm.removeAttribute("data-bs-backdrop");
-  modalConfirm.removeAttribute("data-bs-keyboard");
 };
 
 const createCard = (t, l) => {
@@ -298,7 +291,8 @@ const createCard = (t, l) => {
                 <div class="d-flex flex-column justify-contents-center gap-3 px-5 ">
                 <button type="button" class="btn btn-dark btn-edit" data-bs-toggle="modal"
       data-bs-target="#modalConfirm">edit</button>
-                <button type="button" class="btn btn-dark btn-delete">delete</button>
+                <button type="button" class="btn btn-dark btn-delete" data-bs-toggle="modal"
+      data-bs-target="#modalConfirm">delete</button>
                 </div>
               </div>
             </div>
@@ -321,6 +315,9 @@ const alertModal = (msg) => {
 
 const showConfirmModal = (callback) => {
   confirmCallback = callback;
+
+  modal._config.keyboard = false;
+  modal._config.backdrop = "static";
   modal.show();
 };
 
