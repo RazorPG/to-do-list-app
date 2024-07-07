@@ -62,8 +62,8 @@ document.body.querySelector("form").addEventListener("submit", function (e) {
             </button>
             <button type="button" class="btn btn-dark btn-ok">Ok</button>`
     );
-    modalConfirm.dataset.bsBackdrop = "static";
-    modalConfirm.dataset.bsKeyboard = "false";
+    modalConfirm.setAttribute("bs-backdrop", "static");
+    modalConfirm.setAttribute("bs-Keyboard", "false");
 
     showConfirmModal(() => {
       // create card
@@ -207,8 +207,6 @@ document.addEventListener("click", (e) => {
 
     // save referense to editing card
     currentEditCard = e.target.parentElement.parentElement.children[0];
-
-    modal.show();
   } else if (e.target.classList.contains("btn-save")) {
     btnSave = e.target;
     btnSave.disabled = true;
@@ -299,7 +297,7 @@ const createCard = (t, l) => {
               </div>
                 <div class="d-flex flex-column justify-contents-center gap-3 px-5 ">
                 <button type="button" class="btn btn-dark btn-edit" data-bs-toggle="modal"
-      data-bs-target="#editModal">edit</button>
+      data-bs-target="#modalConfirm">edit</button>
                 <button type="button" class="btn btn-dark btn-delete">delete</button>
                 </div>
               </div>
