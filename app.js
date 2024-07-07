@@ -6,7 +6,7 @@ const titleError = document.querySelector("#title-error");
 const listsError = document.querySelector("#lists-error");
 const alert = document.querySelector(".card-alert");
 const closeAlert = document.querySelector(".close-alert");
-const modalConfirm = document.querySelector("#modalConfirm");
+const modalTemp = document.querySelector("#modal-temp");
 const modalHeader = document.querySelector(".modal-header");
 const modalBody = document.querySelector(".modal-body");
 const modalFooter = document.querySelector(".modal-footer");
@@ -21,7 +21,15 @@ let confirmCallback = null;
 let titleEdit = null;
 let contentEdit = null;
 
-const modal = new bootstrap.Modal(modalConfirm);
+class ModalConfig {
+  constructor(header, body, footer) {
+    this.header = header;
+    this.body = body;
+    this.footer = footer;
+  }
+}
+
+const modal = new bootstrap.Modal(modalTemp);
 
 // form validate to do list
 document.body.querySelector("form").addEventListener("submit", function (e) {
@@ -40,28 +48,8 @@ document.body.querySelector("form").addEventListener("submit", function (e) {
   sanitizedTitle = sanitizeInput(title.value);
 
   if (sanitizedLists.length != 0 && sanitizedTitle.length != 0) {
-    createModal(
-      `<h1
-              class="modal-title fs-5"
-              id="modalConfirmLabel"
-            > <i class="fa-solid fa-square-check fs-3"></i> confirm</h1>
-            </h1>
-            <button
-              type="button"
-              class="btn-close"
-              data-bs-dismiss="modal"
-              aria-label="Close"
-            ></button>`,
-      `Are you sure you want to submit?`,
-      `<button
-              type="button"
-              class="btn btn-secondary btn-cancel"
-              data-bs-dismiss="modal"
-            >
-              Cancel
-            </button>
-            <button type="button" class="btn btn-dark btn-ok">Ok</button>`
-    );
+    const { header, body, footer } = modalForm;
+    createModal(header, body, footer);
 
     showConfirmModal(() => {
       // create card
@@ -100,29 +88,8 @@ document.addEventListener("click", (e) => {
   else if (e.target.classList.contains("btn-delete")) {
     const cardToDoList =
       e.target.parentElement.parentElement.parentElement.parentElement;
-    createModal(
-      `<h1
-      class="modal-title fs-5"
-      id="modalConfirmLabel"
-    ><i class="fa-solid fa-trash fs-3"></i> confirm
-    </h1>
-    <button
-      type="button"
-      class="btn-close"
-      data-bs-dismiss="modal"
-      aria-label="Close"
-    ></button>`,
-      `Are you sure you want to delete?`,
-      `<button
-      type="button"
-      class="btn btn-secondary btn-cancel"
-      data-bs-dismiss="modal"
-    >
-      Cancel
-    </button>
-    <button type="button" class="btn btn-dark btn-ok">Ok</button>`
-    );
-
+    const { header, body, footer } = modalDelete;
+    createModal(header, body, footer);
     showConfirmModal(() => {
       cardToDoList.remove();
     });
@@ -131,58 +98,8 @@ document.addEventListener("click", (e) => {
   else if (e.target.classList.contains("btn-edit")) {
     modal._config.keyboard = true;
     modal._config.backdrop = true;
-    createModal(
-      `<h2 class="modal-title fs-5" id="modalConfirmLabel">
-                <i class="fa-solid fa-pen-to-square"></i> Edit Item
-              </h2>
-              <button
-                type="button"
-                class="btn-close"
-                data-bs-dismiss="modal"
-                aria-label="Close"
-              ></button>`,
-      `<div class="mb-3 row">
-                <label for="judul-to-do-edit" class="col-sm-2 col-form-label"
-                  >Title</label
-                >
-                <div class="col-sm-10">
-                  <input
-                    type="text"
-                    class="form-control"
-                    id="judul-to-do-edit"
-                    placeholder="Title..."
-                    required
-                  />
-                </div>
-              </div>
-              <div class="mb-3 row">
-                <label for="lists-edit" class="col-sm-2 form-label"
-                  >Contents</label
-                >
-                <div class="col-sm-10">
-                  <textarea
-                    class="form-control"
-                    id="lists-edit"
-                    rows="6"
-                    required
-                    placeholder="example:
-  teh
-  susu
-  telur"
-                  ></textarea>
-                </div>
-              </div>`,
-      `<button
-              type="button"
-              class="btn btn-secondary"
-              data-bs-dismiss="modal"
-            >
-              Close
-            </button>
-            <button type="button" class="btn btn-dark btn-save">
-              Save changes
-            </button>`
-    );
+    const { header, body, footer } = modalEdit;
+    createModal(header, body, footer);
 
     titleEdit = document.querySelector("#judul-to-do-edit");
     contentEdit = document.querySelector("#lists-edit");
@@ -240,6 +157,7 @@ document.addEventListener("click", (e) => {
   }
 });
 
+// close alert with button
 closeAlert.addEventListener("click", function () {
   clearTimeout(buttonTimeOut);
   clearTimeout(alertTimeOut);
@@ -272,33 +190,7 @@ lists.addEventListener("input", () => {
   );
 });
 
-const createModal = (header, body, footer) => {
-  modalHeader.innerHTML = header;
-  modalBody.innerHTML = body;
-  modalFooter.innerHTML = footer;
-};
-
-const createCard = (t, l) => {
-  return `<div class="col mt-3 pb-3">
-            <div class="card">
-              <div class="card-body d-flex flex-column justify-content-between">
-              <div>
-              <h5 class="card-title">${t}</h5>
-              <ol class="card-text">
-                ${l}
-              </ol>
-              </div>
-                <div class="d-flex flex-column justify-contents-center gap-3 px-5 ">
-                <button type="button" class="btn btn-dark btn-edit" data-bs-toggle="modal"
-      data-bs-target="#modalConfirm">edit</button>
-                <button type="button" class="btn btn-dark btn-delete" data-bs-toggle="modal"
-      data-bs-target="#modalConfirm">delete</button>
-                </div>
-              </div>
-            </div>
-          </div>`;
-};
-
+// alert modal
 const alertModal = (msg) => {
   const alertMessage = alert.children[0].children[1];
   alertMessage.innerText = msg;
@@ -313,6 +205,7 @@ const alertModal = (msg) => {
   return;
 };
 
+// confirm modal yes or no
 const showConfirmModal = (callback) => {
   confirmCallback = callback;
 
@@ -321,6 +214,7 @@ const showConfirmModal = (callback) => {
   modal.show();
 };
 
+// sanitize input
 const sanitizeInput = (element) => {
   let sanitized = "";
   let insideTag = false;
@@ -340,6 +234,7 @@ const sanitizeInput = (element) => {
   return sanitized;
 };
 
+// max input
 const maxlengthInput = (element, error, length, msg) => {
   if (element.value.length > length) {
     element.value = element.value.slice(0, length);
@@ -348,3 +243,37 @@ const maxlengthInput = (element, error, length, msg) => {
     error.textContent = "";
   }
 };
+
+// create modal
+const createModal = (header, body, footer) => {
+  modalHeader.innerHTML = header;
+  modalBody.innerHTML = body;
+  modalFooter.innerHTML = footer;
+};
+
+// create card
+const createCard = (t, l) => {
+  return `<div class="col mt-3 pb-3"><div class="card"><div class="card-body d-flex flex-column justify-content-between"><div><h5 class="card-title">${t}</h5><ol class="card-text">${l}</ol></div><div class="d-flex flex-column justify-contents-center gap-3 px-5 "><button type="button" class="btn btn-dark btn-edit" data-bs-toggle="modal"data-bs-target="#modal-temp">edit</button><button type="button" class="btn btn-dark btn-delete" data-bs-toggle="modal" data-bs-target="#modal-temp">delete</button></div></div></div></div>`;
+};
+
+const modalForm = new ModalConfig(
+  `<h1 class="modal-title fs-5" id="modal-temp-label"> <i class="fa-solid fa-square-check fs-3"></i> confirm</h1></h1><button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>`,
+  `Are you sure you want to submit?`,
+  `<button type="button" class="btn btn-secondary btn-cancel" data-bs-dismiss="modal">Cancel</button>
+<button type="button" class="btn btn-dark btn-ok">Ok</button>`
+);
+
+const modalEdit = new ModalConfig(
+  `<h2 class="modal-title fs-5" id="modal-temp-label"><i class="fa-solid fa-pen-to-square"></i> Edit Item</h2><button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>`,
+  `<div class="mb-3 row"><label for="judul-to-do-edit" class="col-sm-2 col-form-label">Title</label><div class="col-sm-10"><input type="text" class="form-control" id="judul-to-do-edit" placeholder="Title..." required/></div></div><div class="mb-3 row"><label for="lists-edit" class="col-sm-2 form-label">Contents</label><div class="col-sm-10"><textarea class="form-control" id="lists-edit" rows="6" required placeholder="example:
+teh
+susu
+telur"></textarea></div></div>`,
+  `<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button><button type="button" class="btn btn-dark btn-save">Save changes</button>`
+);
+
+const modalDelete = new ModalConfig(
+  `<h1 class="modal-title fs-5" id="modal-temp-label"><i class="fa-solid fa-trash fs-3"></i> confirm</h1><button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>`,
+  `Are you sure you want to delete?`,
+  `<button type="button" class="btn btn-secondary btn-cancel" data-bs-dismiss="modal">Cancel</button><button type="button" class="btn btn-dark btn-ok">Ok</button>`
+);
