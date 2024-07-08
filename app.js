@@ -1,3 +1,4 @@
+const summary = document.querySelector(".summary");
 const btnForm = document.querySelector("#btn-form");
 const title = document.querySelector("#judul-to-do");
 const lists = document.querySelector("#lists");
@@ -31,8 +32,21 @@ class ModalConfig {
 
 const modal = new bootstrap.Modal(modalTemp);
 
+// change to span from h1
+summary.innerHTML = summary.innerText
+  .split("")
+  .map((item) => {
+    const newItem = `<span style="display:none">${item}</span>`;
+    return newItem;
+  })
+  .join("");
+
+// typing text animation
+typeText();
+
+lists.placeholder = "example:\nteh\nsusu\ntelur";
 // form validate to do list
-document.body.querySelector("form").addEventListener("submit", function (e) {
+document.querySelector("form").addEventListener("submit", function (e) {
   e.preventDefault();
 
   // change lists to element li
@@ -70,91 +84,25 @@ document.body.querySelector("form").addEventListener("submit", function (e) {
       btnForm.disabled = false;
     }, 6000);
 
-    if (sanitizedTitle.length === 0) {
-      alertModal(" title cannot be empty!");
-    } else if (sanitizedLists.length === 0) {
-      alertModal(" contents cannot be empty!");
-    }
+    sanitizedTitle.length === 0
+      ? alertModal("title cannot be empty!")
+      : alertModal("contents cannot be empty!");
   }
 });
 
 // handle click events
 document.addEventListener("click", (e) => {
-  // effect strikethrough
-  if (e.target.tagName === "LI") {
-    e.target.classList.toggle("strikethrogh");
-  }
-  // delete card
-  else if (e.target.classList.contains("btn-delete")) {
-    const cardToDoList =
-      e.target.parentElement.parentElement.parentElement.parentElement;
-    const { header, body, footer } = modalDelete;
-    createModal(header, body, footer);
-    showConfirmModal(() => {
-      cardToDoList.remove();
-    });
-  }
-  // show card to modal
-  else if (e.target.classList.contains("btn-edit")) {
-    modal._config.keyboard = true;
-    modal._config.backdrop = true;
-    const { header, body, footer } = modalEdit;
-    createModal(header, body, footer);
-
-    titleEdit = document.querySelector("#judul-to-do-edit");
-    contentEdit = document.querySelector("#lists-edit");
-
-    const cardTitle =
-      e.target.parentElement.parentElement.children[0].children[0];
-    const cardText =
-      e.target.parentElement.parentElement.children[0].children[1];
-
-    // combine text to li
-    const liElements = cardText.querySelectorAll("li");
-    const contentText = Array.from(liElements)
-      .map((li) => `${li.innerText}`)
-      .join("\n");
-
-    // show value to modal
-    titleEdit.value = cardTitle.innerText;
-    contentEdit.value = contentText;
-
-    // save referense to editing card
-    currentEditCard = e.target.parentElement.parentElement.children[0];
-  } else if (e.target.classList.contains("btn-save")) {
-    btnSave = e.target;
-    btnSave.disabled = true;
-    // Delay 6 second for saving
-    buttonTimeOut = setTimeout(() => {
-      btnSave.disabled = false;
-    }, 6000);
-    if (titleEdit.value.trim() !== "" && contentEdit.value.trim() !== "") {
-      currentEditCard.children[0].innerText = titleEdit.value;
-      const sanitizedLists = sanitizeInput(contentEdit.value)
-        .split("\n")
-        .map((item) => {
-          if (item.length != 0) {
-            return `<li>${item}</li>`;
-          }
-        })
-        .join("");
-      currentEditCard.children[1].innerHTML = sanitizedLists;
-      // close modal
-      modal.hide();
-    } else {
-      if (titleEdit.value.trim() === "") {
-        alertModal(" title cannot be empty!");
-      } else if (contentEdit.value.trim() === "") {
-        alertModal(" contents cannot be empty!");
-      }
-    }
-  } else if (e.target.classList.contains("btn-ok")) {
-    modal.hide();
-
-    if (confirmCallback !== null) {
-      confirmCallback();
-    }
-  }
+  e.target.tagName === "LI"
+    ? handleStikeThrough(e.target)
+    : e.target.classList.contains("btn-delete")
+    ? handleDelete(e.target)
+    : e.target.classList.contains("btn-edit")
+    ? handleEdit(e.target)
+    : e.target.classList.contains("btn-save")
+    ? handleSave(e.target)
+    : e.target.classList.contains("btn-ok")
+    ? handleOk()
+    : 0;
 });
 
 // close alert with button
@@ -189,6 +137,113 @@ lists.addEventListener("input", () => {
     "Contents must be less than 500 characters!"
   );
 });
+
+const handleStikeThrough = (target) => {
+  target.classList.toggle("strikethrough");
+};
+
+const handleDelete = (target) => {
+  const cardToDoList =
+    target.parentElement.parentElement.parentElement.parentElement;
+  const { header, body, footer } = modalDelete;
+  createModal(header, body, footer);
+  showConfirmModal(() => {
+    cardToDoList.remove();
+  });
+};
+
+const handleEdit = (target) => {
+  modal._config.keyboard = true;
+  modal._config.backdrop = true;
+  const { header, body, footer } = modalEdit;
+  createModal(header, body, footer);
+
+  titleEdit = document.querySelector("#judul-to-do-edit");
+  contentEdit = document.querySelector("#lists-edit");
+  contentEdit.placeholder = "example:\nteh:\nsusu\ntelur";
+
+  const cardTitle = target.parentElement.parentElement.children[0].children[0];
+  const cardText = target.parentElement.parentElement.children[0].children[1];
+
+  // combine text to li
+  const liElements = cardText.querySelectorAll("li");
+  const contentText = Array.from(liElements)
+    .map((li) => `${li.innerText}`)
+    .join("\n");
+
+  // show value to modal
+  titleEdit.value = cardTitle.innerText;
+  contentEdit.value = contentText;
+
+  // save referense to editing card
+  currentEditCard = target.parentElement.parentElement.children[0];
+};
+
+const handleSave = (target) => {
+  btnSave = target;
+  btnSave.disabled = true;
+  // Delay 6 second for saving
+  buttonTimeOut = setTimeout(() => {
+    btnSave.disabled = false;
+  }, 6000);
+  if (titleEdit.value.trim() !== "" && contentEdit.value.trim() !== "") {
+    currentEditCard.children[0].innerText = titleEdit.value;
+    const sanitizedLists = sanitizeInput(contentEdit.value)
+      .split("\n")
+      .map((item) => {
+        if (item.length != 0) {
+          return `<li>${item}</li>`;
+        }
+      })
+      .join("");
+    currentEditCard.children[1].innerHTML = sanitizedLists;
+    // close modal
+    modal.hide();
+  } else {
+    if (titleEdit.value.trim() === "") {
+      alertModal(" title cannot be empty!");
+    } else if (contentEdit.value.trim() === "") {
+      alertModal(" contents cannot be empty!");
+    }
+  }
+};
+
+const handleOk = () => {
+  modal.hide();
+  if (confirmCallback !== null) {
+    confirmCallback();
+  }
+};
+
+function typeText() {
+  const spans = summary.querySelectorAll("span");
+
+  spans.forEach((s, i) => {
+    const time = setTimeout(() => {
+      s.style.display = "inline";
+      s.style.animation = `typing 0.5s ease forwards`;
+    }, i * 200);
+  });
+
+  setTimeout(() => {
+    removeText(spans);
+  }, 10000);
+}
+
+function removeText(spans) {
+  for (let i = spans.length - 1; i >= 0; i--) {
+    const time = setTimeout(() => {
+      spans[i].style.animation = "disappearing 0.5s ease forwards";
+      setTimeout(() => {
+        spans[i].style.display = "none";
+      }, 200);
+    }, (spans.length - 1 - i) * 200);
+  }
+
+  setTimeout(() => {
+    typeText();
+  }, spans.length * 200 + 2000);
+}
 
 // alert modal
 const alertModal = (msg) => {
@@ -253,7 +308,7 @@ const createModal = (header, body, footer) => {
 
 // create card
 const createCard = (t, l) => {
-  return `<div class="col mt-3 pb-3"><div class="card"><div class="card-body d-flex flex-column justify-content-between"><div><h5 class="card-title">${t}</h5><ol class="card-text">${l}</ol></div><div class="d-flex flex-column justify-contents-center gap-3 px-5 "><button type="button" class="btn btn-dark btn-edit" data-bs-toggle="modal"data-bs-target="#modal-temp">edit</button><button type="button" class="btn btn-dark btn-delete" data-bs-toggle="modal" data-bs-target="#modal-temp">delete</button></div></div></div></div>`;
+  return `<div class="col mt-3 pb-3"><div class="card "><div class="card-body d-flex flex-column justify-content-between"><div><h5 class="card-title">${t}</h5><ul class="card-text">${l}</ul></div><div class="d-grid mx-auto gap-2"><button type="button" class="btn btn-dark btn-edit clas" data-bs-toggle="modal"data-bs-target="#modal-temp">edit</button><button type="button" class="btn btn-dark btn-delete" data-bs-toggle="modal" data-bs-target="#modal-temp">delete</button></div></div></div></div>`;
 };
 
 const modalForm = new ModalConfig(
@@ -265,10 +320,7 @@ const modalForm = new ModalConfig(
 
 const modalEdit = new ModalConfig(
   `<h2 class="modal-title fs-5" id="modal-temp-label"><i class="fa-solid fa-pen-to-square"></i> Edit Item</h2><button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>`,
-  `<div class="mb-3 row"><label for="judul-to-do-edit" class="col-sm-2 col-form-label">Title</label><div class="col-sm-10"><input type="text" class="form-control" id="judul-to-do-edit" placeholder="Title..." required/></div></div><div class="mb-3 row"><label for="lists-edit" class="col-sm-2 form-label">Contents</label><div class="col-sm-10"><textarea class="form-control" id="lists-edit" rows="6" required placeholder="example:
-teh
-susu
-telur"></textarea></div></div>`,
+  `<div class="mb-3 row"><label for="judul-to-do-edit" class="col-sm-2 col-form-label">Title</label><div class="col-sm-10"><input type="text" class="form-control" id="judul-to-do-edit" placeholder="Title..." required/></div></div><div class="mb-3 row"><label for="lists-edit" class="col-sm-2 form-label">Contents</label><div class="col-sm-10"><textarea class="form-control" id="lists-edit" rows="6" required></textarea></div></div>`,
   `<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button><button type="button" class="btn btn-dark btn-save">Save changes</button>`
 );
 

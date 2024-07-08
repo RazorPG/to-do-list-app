@@ -33,40 +33,45 @@
   </head>
   <body>
     <div class="container">
-      <h1 class="text-center mt-3 py-3 title">RAZOR APP TO-DO LIST</h1>
-      <form class="p-3 bg-dark-subtle row-cols-10">
-        <div class="mb-3 row">
-          <label for="judul-to-do" class="col-sm-2 col-form-label">title</label>
-          <div class="col-sm-10">
-            <input
-              type="text"
-              class="form-control-plaintext"
-              id="judul-to-do"
-              placeholder="title..."
-            />
+      <div class="container-summary">
+        <h1 class="summary">MY APP TO-DO LIST</h1>
+      </div>
+
+      <form class="p-3">
+        <div class="form-body row-cols-10">
+          <div class="mb-3 row">
+            <label for="judul-to-do" class="col-sm-2 col-form-label"
+              >title</label
+            >
+            <div class="col-sm-10">
+              <input
+                type="text"
+                class="form-control"
+                id="judul-to-do"
+                placeholder="title..."
+              />
+            </div>
+            <div>
+              <small id="title-error" class="text-danger"></small>
+            </div>
           </div>
-          <div>
-            <small id="title-error" class="text-danger"></small>
+          <div class="mb-3 row">
+            <label for="lists" class="col-sm-2 form-label">contents</label>
+            <div class="col-sm-10">
+              <textarea
+                class="col-sm-10 form-control"
+                id="lists"
+                rows="6"
+              ></textarea>
+            </div>
+            <div>
+              <small id="lists-error" class="text-danger"></small>
+            </div>
           </div>
+          <button type="submit" class="btn btn-dark" id="btn-form">
+            Submit
+          </button>
         </div>
-        <div class="mb-3 row">
-          <label for="lists" class="col-sm-2 form-label">contents</label>
-          <div class="col-sm-10">
-            <textarea
-              class="col-sm-10 form-control"
-              id="lists"
-              rows="6"
-              placeholder="example:
-teh
-susu
-telur"
-            ></textarea>
-          </div>
-          <div>
-            <small id="lists-error" class="text-danger"></small>
-          </div>
-        </div>
-        <button type="submit" class="btn btn-dark" id="btn-form">Submit</button>
       </form>
     </div>
 
@@ -80,8 +85,12 @@ telur"
       </div>
     </section>
 
+    <footer>
+      <span>Copyright © 2024 Rafid Hilmi. All rights reserved.</span>
+    </footer>
+
     <!-- alert message -->
-    <div class="card-alert hide">
+    <div class="card-alert">
       <div class="alert-message">
         <span class="fas fa-exclamation-circle"> </span>
         <span class="msg"></span>
@@ -89,6 +98,7 @@ telur"
       </div>
     </div>
 
+    <!-- modal -->
     <div
       class="modal fade"
       id="modal-temp"
