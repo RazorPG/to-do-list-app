@@ -2,14 +2,14 @@
   --color-white: #ffffff;
   --color-black: #000;
   --color-dark-mode: #11111b;
-  --color-light-mode: #ece7e1;
+  --color-light-mode: #fffdfb;
   --color-gray: #c4c4c4;
-  --color-purle: #8000ff;
-  --color-light-purple: #cf59e6;
-  --color-light-blue: #6bc5f8;
   --color-card: #171723;
+  --color-border: #292929;
   --color-alert: #332701;
   --color-alert-text: #ffda6a;
+  --color-form: #454635;
+  --filter-invert: 0;
 }
 
 * {
@@ -18,10 +18,23 @@
   padding: 0;
 }
 
+.light-mode {
+  --color-white: #000;
+  --color-black: #fff;
+  --color-dark-mode: #eeeee4;
+  --color-light-mode: #11111b;
+  --color-gray: #6f493b;
+  --color-card: #e3e3d5;
+  --color-border: #d6d6d6;
+  --color-form: #a1a37c;
+  --filter-invert: 1;
+}
+
 html,
 body {
   height: 100%;
   overflow-x: hidden;
+  transition: 0.5s ease-in;
 }
 
 body {
@@ -30,8 +43,23 @@ body {
   flex-direction: column;
   background: var(--color-dark-mode);
   font-family: "Poppins", sans-serif;
+  position: relative;
 }
-
+input {
+  color: var(--color-black);
+  transition: 0.5s ease-in;
+}
+.form-control {
+  background-color: var(--color-white) !important;
+  color: var(--color-black) !important;
+  caret-color: var(--color-black);
+}
+.form-control::placeholder {
+  color: var(--color-form) !important;
+}
+.form-control::placeholder:active {
+  color: var(--color-form) !important;
+}
 .container-summary {
   display: flex;
   justify-content: center;
@@ -40,10 +68,12 @@ body {
 }
 
 h1.summary {
+  transition: 0.5s ease-in;
   padding: 3rem 7%;
   letter-spacing: 10px;
   overflow: hidden;
   position: relative;
+  color: var(--color-white);
 }
 h1.summary::after {
   position: absolute;
@@ -51,53 +81,68 @@ h1.summary::after {
   width: 5px;
   height: 60%;
   top: 20%;
-  background: white;
-  animation: cursor 1.5s infinite;
+  background: var(--color-light-mode);
+}
+h1.summary.cursor-active::after {
+  animation: cursor 1s infinite;
 }
 h1.summary span {
   transform: scale(1);
   opacity: 0;
-  color: var(--color-white);
 }
 
 ul {
-  list-style-image: url(img/shuriken-aperture-svgrepo-com.svg);
+  list-style: none;
+  padding-left: 0;
 }
 
-.animate-text {
-  cursor: pointer;
+ul li {
+  position: relative;
+}
+
+ul li::before {
+  content: "";
+  display: inline-block;
+  margin-right: 10px;
+  padding: 8px;
+  mask: url(assets/img/shuriken-aperture-svgrepo-com.svg);
+  background-color: #fff;
+  mask-size: cover;
+  background-size: cover;
+  mask-repeat: no-repeat;
 }
 
 form {
-  border: 1px solid #292929;
+  border: 1px solid var(--color-border);
   color: var(--color-gray);
   background: var(--color-card);
-  max-width: 800px;
+  max-width: 750px;
   margin: 0 auto 25px;
   border-radius: 4px;
   position: relative;
 }
+
 form::after {
   pointer-events: none;
   content: "";
   position: absolute;
   width: 5%;
   height: 15%;
-  border-left: 3px solid white;
-  border-top: 3px solid white;
+  border-left: 3px solid var(--color-white);
+  border-top: 3px solid var(--color-white);
   top: -10px;
   left: -10px;
   transition: 0.5s;
 }
+
 form::before {
   pointer-events: none;
-
   content: "";
   position: absolute;
   width: 5%;
   height: 15%;
-  border-right: 3px solid white;
-  border-bottom: 3px solid white;
+  border-right: 3px solid var(--color-white);
+  border-bottom: 3px solid var(--color-white);
   right: -10px;
   bottom: -10px;
   transition: 0.5s;
@@ -107,11 +152,13 @@ form:hover::after {
   width: 110%;
   height: 120%;
 }
+
 form:hover::before {
   width: 110%;
   height: 120%;
 }
 
+/* reset boostrap */
 input,
 textarea,
 .form-control {
@@ -149,14 +196,181 @@ li:hover {
   cursor: pointer;
 }
 
+.bg-dark {
+  background-color: var(--color-black) !important;
+}
+.btn-dark {
+  background-color: var(--color-black) !important;
+  color: var(--color-white) !important;
+}
+.btn-dark:active {
+  border: 1px solid var(--color-white) !important;
+}
+.btn-dark:hover {
+  border: 1px solid var(--color-white) !important;
+}
+.modal-dialog {
+  margin: 3rem auto;
+  max-width: 500px;
+}
+
+.modal-content {
+  margin: auto;
+  background: var(--color-dark-mode);
+  color: var(--color-gray);
+  border: 1px solid var(--color-border);
+}
+
+.modal-header,
+.modal-body,
+.modal-footer {
+  border: 1px solid var(--color-border);
+}
+
+.btn-close {
+  border: none;
+  position: relative;
+  width: 2em;
+  height: 2em;
+}
+
+.btn-close::before,
+.btn-close::after {
+  border: none;
+  outline: none;
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 30%;
+  width: 1.3em;
+  height: 0.1em;
+  background-color: var(--color-white);
+}
+
+.btn-close::before {
+  transform: rotate(45deg);
+}
+
+.btn-close::after {
+  transform: rotate(-45deg);
+}
+
+.btn-close:hover::before,
+.btn-close:hover::after {
+  background-color: var(--color-gray);
+}
+
+.btn-close:focus {
+  box-shadow: none;
+}
 #cards {
+  transition: 1s ease;
   justify-self: start;
 }
 
+.card {
+  filter: invert(var(--filter-invert));
+  position: relative;
+  border-radius: 20px;
+  color: #ffffff;
+  min-height: 470px;
+  transition: 0.2s ease-in;
+}
+#cards .show {
+  animation: show-card 1s forwards;
+}
+#cards .remove {
+  animation: delete-card 1s forwards;
+}
+.card.hover-active {
+  z-index: 2;
+  animation-play-state: paused;
+}
+
+.card:before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: repeating-conic-gradient(
+    from var(--a),
+    #0f0,
+    #ff0,
+    #0ff,
+    #f0f,
+    #0ff
+  );
+  border-radius: 20px;
+  animation: rotating 4s linear infinite;
+  animation-play-state: inherit;
+}
+
+.card:after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: repeating-conic-gradient(
+    from var(--a),
+    #0f0,
+    #ff0,
+    #0ff,
+    #f0f,
+    #0ff
+  );
+  border-radius: 20px;
+  animation: rotating 4s linear infinite;
+  filter: blur(10px);
+  animation-play-state: inherit;
+}
+
+.card.hover-active:hover:before,
+.card.hover-active:hover:after {
+  animation-play-state: running;
+}
+
+.card-body {
+  inset: 100px;
+  background: #171723;
+  border-radius: 16px;
+  z-index: 1;
+}
+
+.card:hover {
+  animation-play-state: running;
+  transform: scale(1.05);
+}
+
+#btn-form {
+  align-self: end;
+  border: 1px solid var(--color-border);
+  min-width: 200px;
+}
+
+.btn-edit,
+.btn-delete {
+  background: #000 !important;
+  color: #fff !important;
+  border: 1px solid #292929;
+  width: 10rem;
+}
+#service {
+  position: absolute;
+  bottom: 20vh;
+  right: 1vw;
+}
+.service {
+  width: 50px;
+  height: 50px;
+}
+
+.border {
+  border: 2px solid var(--color-white) !important;
+}
+.logo {
+  color: var(--color-white);
+}
 .card-alert {
   overflow: hidden;
   position: fixed;
-  bottom: 0;
   left: 50%;
   transform: translateX(-50%);
   color: var(--color-alert-text);
@@ -204,77 +418,7 @@ li:hover {
   background: var(--color-alert-text);
 }
 
-.card {
-  position: relative;
-  border-radius: 20px;
-  color: var(--color-white);
-  background-color: var(--color-dark-mode);
-  min-height: 300px;
-  transition: 0.2s ease-in;
-  animation-play-state: paused;
-}
-
-.card:before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background: repeating-conic-gradient(
-    from var(--a),
-    #0f0,
-    #ff0,
-    #0ff,
-    #f0f,
-    #0ff
-  );
-  border-radius: 20px;
-  animation: rotating 4s linear infinite;
-  animation-play-state: inherit;
-}
-
-.card:after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background: repeating-conic-gradient(
-    from var(--a),
-    #0f0,
-    #ff0,
-    #0ff,
-    #f0f,
-    #0ff
-  );
-  border-radius: 20px;
-  animation: rotating 4s linear infinite;
-  filter: blur(10px);
-  animation-play-state: inherit;
-}
-
-.card-body {
-  inset: 100px;
-  background: var(--color-card);
-  border-radius: 16px;
-  z-index: 1;
-}
-
-.card:hover {
-  animation-play-state: running;
-  transform: scale(1.1);
-}
-
-#btn-form {
-  align-self: end;
-  border: 1px solid #292929;
-  min-width: 200px;
-}
-
-.btn-edit,
-.btn-delete {
-  border: 1px solid #292929;
-  width: 10rem;
-}
-
 footer {
-  background: var(--color-dark-mode);
   color: var(--color-gray);
   text-align: center;
   padding: 10px;
@@ -302,28 +446,49 @@ footer {
     bottom: -100%;
   }
   40% {
-    bottom: 20px;
+    bottom: 80px;
   }
   80% {
-    bottom: 0;
+    bottom: 40px;
   }
   100% {
-    bottom: 10px;
+    bottom: 50px;
   }
 }
 
 @keyframes hide-alert {
   0% {
-    bottom: 10px;
+    bottom: 50px;
   }
   40% {
-    bottom: 0;
+    bottom: 80px;
   }
   80% {
-    bottom: 20px;
+    bottom: 40px;
   }
   100% {
     bottom: -100%;
+  }
+}
+
+@keyframes show-card {
+  from {
+    opacity: 0;
+    transform: translateX(100px) rotate(25deg);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0) rotate(0deg);
+  }
+}
+@keyframes delete-card {
+  from {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(100px);
   }
 }
 
@@ -348,15 +513,12 @@ footer {
   }
 }
 @keyframes cursor {
-  0% {
-    top: 50%;
-    height: 0;
-  }
-  50% {
+  0%,
+  100% {
     height: 60%;
     top: 20%;
   }
-  100% {
+  50% {
     top: 50%;
     height: 0;
   }
@@ -364,16 +526,30 @@ footer {
 
 /* media queries */
 
+@media (max-width: 1366px) {
+  form {
+    max-width: 600px;
+  }
+  .card {
+    min-height: 380px;
+  }
+}
 @media (max-width: 768px) {
   html {
     font-size: 90%;
   }
+  form {
+    max-width: 500px;
+  }
 
   h1.summary {
-    font-size: 2.5rem;
+    font-size: 2rem;
     letter-spacing: 5px;
   }
 
+  .modal-dialog {
+    max-width: 400px;
+  }
   #btn-form {
     display: block;
     margin: 0 auto;
@@ -384,12 +560,12 @@ footer {
   }
   .card {
     margin: 0 auto;
-    max-width: 350px;
+    max-width: 320px;
   }
   .card-alert {
     border: 1px solid var(--color-alert-text);
     font-size: 15px;
-    width: 25rem;
+    width: 23rem;
   }
   .alert-message .fa-exclamation-circle {
     font-size: 25px;
@@ -399,28 +575,33 @@ footer {
   .alert-message .close-alert {
     padding: 15px 10px;
   }
+  #service {
+    bottom: 10vh;
+    right: 1vw;
+  }
 }
 
 @media (max-width: 450px) {
   html {
     font-size: 80%;
   }
-
   h1.summary {
-    font-size: 2.2rem;
+    font-size: 1.8rem;
   }
-
+  .modal-dialog {
+    max-width: 300px;
+  }
+  .card {
+    max-width: 250px;
+    min-height: 300px;
+  }
   .btn-edit,
   .btn-delete {
-    max-width: 100px;
+    max-width: 150px;
   }
-  .btn-delete,
-  .btn-edit {
-    width: 8rem;
-  }
+
   .card-alert {
-    border: 1px solid var(--color-alert-text);
-    width: 20rem;
+    width: 17rem;
     font-size: 12px;
   }
   .alert-message .fa-exclamation-circle {

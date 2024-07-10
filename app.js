@@ -11,6 +11,7 @@ const modalTemp = document.querySelector("#modal-temp");
 const modalHeader = document.querySelector(".modal-header");
 const modalBody = document.querySelector(".modal-body");
 const modalFooter = document.querySelector(".modal-footer");
+const services = document.querySelectorAll(".service");
 
 let currentEditCard = null;
 let btnSave = null;
@@ -32,7 +33,37 @@ class ModalConfig {
 
 const modal = new bootstrap.Modal(modalTemp);
 
-// change to span from h1
+// music service
+const music = new Audio("assets/sound/tvari-tokyo-cafe-159065.mp3");
+music.loop = true;
+services.forEach((service) => {
+  const logo = service.querySelector(".logo");
+  service.addEventListener("click", () => {
+    if (service.id === "music") {
+      logo.classList.toggle("fa-volume-high");
+      logo.classList.toggle("fa-volume-xmark");
+
+      if (logo.classList.contains("fa-volume-high")) {
+        music.play();
+      } else if (logo.classList.contains("fa-volume-xmark")) {
+        music.pause();
+      }
+    } else if (service.id === "mode") {
+      logo.classList.toggle("fa-moon");
+      logo.classList.toggle("fa-sun");
+      if (logo.classList.contains("fa-sun")) {
+        const lis = document.querySelectorAll("li");
+        document.body.classList.add("light-mode");
+      } else {
+        document.body.classList.remove("light-mode");
+      }
+    }
+  });
+});
+
+// dark mode light mode
+
+// h1 into span
 summary.innerHTML = summary.innerText
   .split("")
   .map((item) => {
@@ -68,7 +99,10 @@ document.querySelector("form").addEventListener("submit", function (e) {
     showConfirmModal(() => {
       // create card
       const card = createCard(sanitizedTitle, sanitizedLists);
-      notes.innerHTML += card;
+      const cardElement = document.createElement("div");
+      cardElement.innerHTML = card;
+      cardElement.classList.add("show", "col", "mt-3", "pb-3");
+      notes.appendChild(cardElement);
 
       // clear form input
       titleError.textContent = "";
@@ -145,10 +179,16 @@ const handleStikeThrough = (target) => {
 const handleDelete = (target) => {
   const cardToDoList =
     target.parentElement.parentElement.parentElement.parentElement;
+
+  console.log(cardToDoList);
   const { header, body, footer } = modalDelete;
   createModal(header, body, footer);
   showConfirmModal(() => {
-    cardToDoList.remove();
+    cardToDoList.classList.remove("show");
+    cardToDoList.classList.add("remove");
+    setTimeout(() => {
+      cardToDoList.remove();
+    }, 1000);
   });
 };
 
@@ -160,6 +200,29 @@ const handleEdit = (target) => {
 
   titleEdit = document.querySelector("#judul-to-do-edit");
   contentEdit = document.querySelector("#lists-edit");
+
+  const titleEditError = document.querySelector("#title-error-edit");
+  const contentEditError = document.querySelector("#lists-error-edit");
+
+  //title and list input event listeners
+  titleEdit.addEventListener("input", () => {
+    maxlengthInput(
+      titleEdit,
+      titleEditError,
+      50,
+      "Title must be less than 50 characters!"
+    );
+  });
+
+  contentEdit.addEventListener("input", () => {
+    maxlengthInput(
+      contentEdit,
+      contentEditError,
+      500,
+      "Contents must be less than 500 characters!"
+    );
+  });
+
   contentEdit.placeholder = "example:\nteh:\nsusu\ntelur";
 
   const cardTitle = target.parentElement.parentElement.children[0].children[0];
@@ -217,15 +280,18 @@ const handleOk = () => {
 
 function typeText() {
   const spans = summary.querySelectorAll("span");
-
   spans.forEach((s, i) => {
     const time = setTimeout(() => {
       s.style.display = "inline";
       s.style.animation = `typing 0.5s ease forwards`;
     }, i * 200);
   });
+  setTimeout(() => {
+    summary.classList.add("cursor-active");
+  }, 3500);
 
   setTimeout(() => {
+    summary.classList.remove("cursor-active");
     removeText(spans);
   }, 10000);
 }
@@ -241,6 +307,11 @@ function removeText(spans) {
   }
 
   setTimeout(() => {
+    summary.classList.add("cursor-active");
+  }, 3400);
+
+  setTimeout(() => {
+    summary.classList.remove("cursor-active");
     typeText();
   }, spans.length * 200 + 2000);
 }
@@ -308,7 +379,7 @@ const createModal = (header, body, footer) => {
 
 // create card
 const createCard = (t, l) => {
-  return `<div class="col mt-3 pb-3"><div class="card "><div class="card-body d-flex flex-column justify-content-between"><div><h5 class="card-title">${t}</h5><ul class="card-text">${l}</ul></div><div class="d-grid mx-auto gap-2"><button type="button" class="btn btn-dark btn-edit clas" data-bs-toggle="modal"data-bs-target="#modal-temp">edit</button><button type="button" class="btn btn-dark btn-delete" data-bs-toggle="modal" data-bs-target="#modal-temp">delete</button></div></div></div></div>`;
+  return `<div class="card hover-active"><div class="card-body d-flex flex-column justify-content-between"><div><h5 class="card-title">${t}</h5><ul class="card-text">${l}</ul></div><div class="d-grid mx-auto gap-2"><button type="button" class="btn btn-dark btn-edit clas" data-bs-toggle="modal"data-bs-target="#modal-temp">edit</button><button type="button" class="btn btn-dark btn-delete" data-bs-toggle="modal" data-bs-target="#modal-temp">delete</button></div></div></div>`;
 };
 
 const modalForm = new ModalConfig(
@@ -320,7 +391,7 @@ const modalForm = new ModalConfig(
 
 const modalEdit = new ModalConfig(
   `<h2 class="modal-title fs-5" id="modal-temp-label"><i class="fa-solid fa-pen-to-square"></i> Edit Item</h2><button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>`,
-  `<div class="mb-3 row"><label for="judul-to-do-edit" class="col-sm-2 col-form-label">Title</label><div class="col-sm-10"><input type="text" class="form-control" id="judul-to-do-edit" placeholder="Title..." required/></div></div><div class="mb-3 row"><label for="lists-edit" class="col-sm-2 form-label">Contents</label><div class="col-sm-10"><textarea class="form-control" id="lists-edit" rows="6" required></textarea></div></div>`,
+  `<div class="mb-3 row"><label for="judul-to-do-edit" class="col-sm-2 col-form-label">Title</label><div class="col-sm-10"><input type="text" class="form-control" id="judul-to-do-edit" placeholder="Title..." required/></div><div><small id="title-error-edit" class="text-danger"></small></div></div><div class="mb-3 row"><label for="lists-edit" class="col-sm-2 form-label">Contents</label><div class="col-sm-10"><textarea class="form-control" id="lists-edit" rows="6" required></textarea></div><div><small id="lists-error-edit" class="text-danger"></small></div></div>`,
   `<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button><button type="button" class="btn btn-dark btn-save">Save changes</button>`
 );
 
